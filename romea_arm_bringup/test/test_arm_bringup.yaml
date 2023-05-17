@@ -1,0 +1,40 @@
+name: arm
+driver:
+  pkg: ur_robot_driver
+  ip: "192.168.1.101"
+control:
+  controller_manager:
+    update_rate: 500
+    configuration:
+      pkg: romea_arm_bringup
+      file: config/ur_controller_manager.yaml
+  controllers:
+    selected: [joint_trajectory_controller]
+    configuration:
+      pkg: romea_arm_bringup
+      file: config/ur_controllers.yaml
+configuration:
+  type: ur
+  model: 5e
+  calibration:
+    pkg: ur_description
+    file: config/ur5e/default_kinematics.yaml
+  joint_limits:
+    pkg: ur_description
+    file: config/ur5e/joints_limits.yaml
+geometry:
+  parent_link: "base_link"
+  xyz: [1.0, 2.0, 3.0]
+  rpy: [4.0, 5.0, 6.0]
+simulation:
+  initial_positions:
+    shoulder_pan_joint: 0.0
+    shoulder_lift_joint: -1.57
+    elbow_joint: 0.0
+    wrist_1_joint: -1.57
+    wrist_2_joint: 0.0
+    wrist_3_joint: 0.0
+records:
+  nmea_sentence: true
+  gps_fix: false
+  vel: false
