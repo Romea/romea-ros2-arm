@@ -51,14 +51,13 @@ def get_meta_description(context):
 def launch_setup(context, *args, **kwargs):
 
     robot_namespace = get_robot_namespace(context)
-    robot_urdf_description = get_robot_urdf_description(context)
 
     meta_description = get_meta_description(context)
     controller_manager_name = arm_prefix(robot_namespace, meta_description)+"controller_manager"
 
-    controller_manager_configuration_file_path = create_configuration_file(
-        robot_namespace, meta_description, "controller_manager"
-    )
+    # controller_manager_configuration_file_path = create_configuration_file(
+    #     robot_namespace, meta_description, "controller_manager"
+    # )
 
     controllers_configuration_file_path = create_configuration_file(
         robot_namespace, meta_description, "controllers"
@@ -70,20 +69,25 @@ def launch_setup(context, *args, **kwargs):
     actions.append(PushRosNamespace(meta_description.get_name()))
 
     if get_mode(context) == "live":
-        if meta_description.get_type != "ur":
-            actions.append(
-                Node(
-                    package="controller_manager",
-                    executable="ros2_control_node",
-                    parameters=[
-                        {"robot_description": robot_urdf_description},
-                        controller_manager_configuration_file_path,
-                    ],
-                    # output="screen",
-                )
-            )
-        else:
-            pass
+        pass
+        # ros2_control_config_urdf_file = "/tmp/"+prefix+name+"_ros2_control.urdf"
+        # with open(base_ros2_control_description_file, "r") as f:
+        # base_ros2_control_description = f.read()
+
+        # if meta_description.get_type != "ur":
+        #     actions.append(
+        #         Node(
+        #             package="controller_manager",
+        #             executable="ros2_control_node",
+        #             parameters=[
+        #                 {"robot_description": robot_urdf_description},
+        #                 controller_manager_configuration_file_path,
+        #             ],
+        #             # output="screen",
+        #         )
+        #     )
+        # else:
+        #     pass
 
     actions.append(
         Node(
@@ -129,8 +133,6 @@ def generate_launch_description():
     declared_arguments.append(DeclareLaunchArgument("mode"))
 
     declared_arguments.append(DeclareLaunchArgument("robot_namespace"))
-
-    declared_arguments.append(DeclareLaunchArgument("robot_urdf_description"))
 
     declared_arguments.append(DeclareLaunchArgument("meta_description_file_path"))
 

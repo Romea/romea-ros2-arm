@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="gps" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:arg name="prefix" default="" />
   <xacro:arg name="mode" default="simulation" />
@@ -9,7 +9,8 @@
   <xacro:arg name="rpy" default="0.0 0.0 0.0" />
   <xacro:arg name="ros_prefix" default="/" />
   <xacro:arg name="ip" default="192.168.1.101" />
-  <xacro:arg name="controllers_yaml_file" default="" />
+  <xacro:arg name="controller_manager_config_yaml_file" default="" />
+  <xacro:arg name="ros2_control_config_urdf_file" default="" />
 
   <xacro:include filename="$(find romea_arm_description)/urdf/ur_arm.xacro" />
 
@@ -22,7 +23,8 @@
     rpy=" $(arg rpy)"
     parent_link="$(arg parent_link)"
     ip="$(arg ip)"
-    controllers_yaml_file="$(arg controllers_yaml_file)"
+    controller_manager_config_yaml_file="$(arg controller_manager_config_yaml_file)"
+    ros2_control_config_urdf_file="$(arg ros2_control_config_urdf_file)"
     ros_prefix="$(arg ros_prefix)" />
 
 </robot>

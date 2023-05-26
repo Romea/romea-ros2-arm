@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="arm">
 
    <xacro:macro name="ur_arm"
-      params="prefix mode name model xyz rpy parent_link ip controllers_yaml_file ros_prefix">
+      params="prefix mode name model xyz rpy parent_link ip controller_manager_config_yaml_file ros2_control_config_urdf_file ros_prefix">
 
       <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro" />
 
@@ -99,9 +99,9 @@
       <!-- <xacro:property
          name="sim_ignition"
          value="false" /> -->
-      <xacro:property
+      <!-- <xacro:property
          name="simulation_controllers"
-         value="$(arg controllers_yaml_file)" />
+         value="$(arg controller_manager_config_yaml_file)" /> -->
 
       <!-- pose -->
       <!-- <xacro:property
@@ -165,15 +165,15 @@
 
       <xacro:if value="${mode == 'simulation'}">
          <gazebo>
-            <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-               <hardware>${prefix}${name}</hardware>
-               <robot_param_node>${ros_prefix}robot_state_publisher</robot_param_node>
-               <parameters>${controllers_yaml_file}</parameters>
+            <plugin filename="libromea_gazebo_ros2_control.so" name="gazebo_ros2_control">
+               <ros2_control_config_file>${ros2_control_config_urdf_file}</ros2_control_config_file>
+               <controller_manager_config_file>${controller_manager_config_yaml_file}</controller_manager_config_file>
                <ros>
                   <namespace>${ros_prefix}${name}</namespace>
                </ros>
             </plugin>
          </gazebo>
+
       </xacro:if>
    </xacro:macro>
 
