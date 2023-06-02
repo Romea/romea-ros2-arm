@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="arm">
 
    <xacro:macro name="ur_arm"
-      params="prefix mode name model xyz rpy parent_link ip controller_manager_config_yaml_file ros2_control_config_urdf_file ros_prefix">
+      params="prefix mode name model xyz rpy parent_link ip controller_manager_config_yaml_file ros2_control_config_urdf_file   calibration_config_yaml_file joint_limits_config_yaml_file initial_joint_positions_config_yaml_file ros_prefix">
 
       <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro" />
 
@@ -21,16 +21,18 @@
 
 
       <xacro:property
-         name="joint_limit_params"
-         value="$(find ur_description)/config/${ur_type}/joint_limits.yaml" />
+         name="joint_limit_params_file"
+         value="${joint_limits_config_yaml_file}" />
+      <!-- value="$(find ur_description)/config/${ur_type}/joint_limits.yaml" /> -->
       <xacro:property
-         name="kinematics_params"
-         value="$(find ur_description)/config/${ur_type}/default_kinematics.yaml" />
+         name="kinematics_params_file"
+         value="${calibration_config_yaml_file}" />
+      <!-- value="$(find ur_description)/config/${ur_type}/default_kinematics.yaml" /> -->
       <xacro:property
-         name="physical_params"
+         name="physical_params_file"
          value="$(find ur_description)/config/${ur_type}/physical_parameters.yaml" />
       <xacro:property
-         name="visual_params"
+         name="visual_params_file"
          value="$(find ur_description)/config/${ur_type}/visual_parameters.yaml" />
       <xacro:property
          name="safety_limits"
@@ -114,7 +116,8 @@
 
       <xacro:property
          name="initial_positions_file"
-         value="$(find ur_description)/config/initial_positions.yaml" />
+         value="${initial_joint_positions_config_yaml_file}" />
+      <!-- value="$(find ur_description)/config/initial_positions.yaml" /> -->
 
       <xacro:property
          name="initial_positions"
@@ -145,10 +148,10 @@
          name="${prefix}${name}"
          prefix="${ur_prefix}"
          parent="${parent_link_name}"
-         joint_limits_parameters_file="${joint_limit_params}"
-         kinematics_parameters_file="${kinematics_params}"
-         physical_parameters_file="${physical_params}"
-         visual_parameters_file="${visual_params}"
+         joint_limits_parameters_file="${joint_limit_params_file}"
+         kinematics_parameters_file="${kinematics_params_file}"
+         physical_parameters_file="${physical_params_file}"
+         visual_parameters_file="${visual_params_file}"
          safety_limits="${safety_limits}"
          safety_pos_margin="${safety_pos_margin}"
          safety_k_position="${safety_k_position}"

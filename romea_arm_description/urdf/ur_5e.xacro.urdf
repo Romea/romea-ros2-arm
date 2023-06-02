@@ -11,6 +11,10 @@
   <xacro:arg name="ip" default="192.168.1.101" />
   <xacro:arg name="controller_manager_config_yaml_file" default="" />
   <xacro:arg name="ros2_control_config_urdf_file" default="" />
+  <xacro:arg name="calibration_config_yaml_file" default="" />
+  <xacro:arg name="joint_limits_config_yaml_file" default="" />
+  <xacro:arg name="initial_joint_positions_config_yaml_file" default="" />
+
 
   <xacro:include filename="$(find romea_arm_description)/urdf/ur_arm.xacro" />
 
@@ -25,6 +29,9 @@
     ip="$(arg ip)"
     controller_manager_config_yaml_file="$(arg controller_manager_config_yaml_file)"
     ros2_control_config_urdf_file="$(arg ros2_control_config_urdf_file)"
+    calibration_config_yaml_file="$(arg calibration_config_yaml_file)"
+    joint_limits_config_yaml_file="$(arg joint_limits_config_yaml_file)"
+    initial_joint_positions_config_yaml_file="$(arg initial_joint_positions_config_yaml_file)"
     ros_prefix="$(arg ros_prefix)" />
 
 </robot>

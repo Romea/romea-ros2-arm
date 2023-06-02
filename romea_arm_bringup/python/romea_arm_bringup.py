@@ -58,6 +58,15 @@ class ArmMetaDescription:
     def get_model(self):
         return self.meta_description.get("model", "configuration")
 
+    def get_calibration(self):
+        return self.meta_description.get("calibration", "configuration")
+
+    def get_joint_limits(self):
+        return self.meta_description.get("joint_limits", "configuration")
+
+    def get_initial_joint_positions(self):
+        return self.meta_description.get("initial_joint_positions", "configuration")
+
     def get_parent_link(self):
         return self.meta_description.get("parent_link", "geometry")
 
@@ -178,6 +187,9 @@ def urdf_description(robot_namespace, mode, meta_description_file_path):
         meta_description.get_xyz(),
         meta_description.get_rpy(),
         meta_description.get_driver_ip(),
+        get_file_path(meta_description.get_calibration()),
+        get_file_path(meta_description.get_joint_limits()),
+        get_file_path(meta_description.get_initial_joint_positions()),
         controller_manager_configuration_file_path,
         robot_prefix(robot_namespace),
     )

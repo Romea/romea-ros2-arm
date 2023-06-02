@@ -113,7 +113,7 @@ def launch_setup(context, *args, **kwargs):
                 executable="spawner.py",
                 exec_name=controller_name + "_spawner",
                 arguments=[
-                    "joint_trajectory_controller",
+                    controller_name,
                     "--param-file",
                     controllers_configuration_file_path,
                     "--controller-manager",
