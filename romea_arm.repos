@@ -8,7 +8,7 @@ repositories:
     type: git
     url: git@gitlab-ssh.irstea.fr:romea_ros2/tools/romea_common.git
     version: devel
-  romea_ros2/interfaces/sensors/romea_arm:
+  romea_ros2/interfaces/manipulators/romea_arm:
     type: git
     url: git@gitlab-ssh.irstea.fr:romea_ros2/interfaces/manipulators/romea_arm.git
     version: devel
