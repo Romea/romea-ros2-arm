@@ -44,12 +44,6 @@ def ur_arm_urdf(
 
     ros2_control_config_urdf_file = "/tmp/" + prefix + name + "_ros2_control.urdf"
 
-    # print(calibration_config_yaml_file)
-    # print(joints_limits_config_yaml_file)
-    # print(initial_joints_positions_config_yaml_file)
-    # print(controller_manager_config_yaml_file)
-    # print(ros2_control_config_urdf_file)
-
     arm_urdf_xml = xacro.process_file(
         xacro_file,
         mappings={

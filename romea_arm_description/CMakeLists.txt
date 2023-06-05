@@ -4,7 +4,7 @@ project(romea_arm_description)
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY config urdf
+  DIRECTORY urdf
   DESTINATION share/${PROJECT_NAME}
 )
 
