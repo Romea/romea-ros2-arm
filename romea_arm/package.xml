@@ -13,10 +13,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>romea_gps_bringup</exec_depend>
-  <exec_depend>romea_gps_description</exec_depend>
-  <exec_depend>romea_gps_gazebo</exec_depend>
-  <exec_depend>romea_gps_utils</exec_depend>
+  <exec_depend>romea_arm_bringup</exec_depend>
+  <exec_depend>romea_arm_description</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
