@@ -16,6 +16,7 @@
 import pytest
 import xml.etree.ElementTree as ET
 from romea_arm_description import ur_arm_urdf
+from ament_index_python.packages import get_package_share_directory
 
 
 @pytest.fixture(scope="module")
@@ -28,13 +29,38 @@ def ur_urdf_xml():
     xyz = [1.0, 2.0, 3.0]
     rpy = [4.0, 5.0, 6.0]
     ip = "192.168.1.101"
-    controllers_yaml_file = "controller.yaml"
+    calibration_config_yaml_file = (
+        get_package_share_directory("ur_description")
+        + "/config/ur5e/default_kinematics.yaml"
+    )
+    joint_limits_config_yaml_file = (
+        get_package_share_directory("ur_description")
+        + "/config/ur5e/joint_limits.yaml"
+    )
+    initial_joint_positions_config_yaml_file = (
+        get_package_share_directory("ur_description")
+        + "/config/initial_positions.yaml"
+    )
+    controller_manager_config_yaml_file = "ur_controller_manager.yaml"
     ros_prefix = "/ns/"
 
-    return ET.fromstring(ur_arm_urdf(prefix, mode, name, model,
-                                     parent_link, xyz, rpy,
-                                     ip, controllers_yaml_file,
-                                     ros_prefix))
+    return ET.fromstring(
+        ur_arm_urdf(
+            prefix,
+            mode,
+            name,
+            model,
+            parent_link,
+            xyz,
+            rpy,
+            ip,
+            calibration_config_yaml_file,
+            joint_limits_config_yaml_file,
+            initial_joint_positions_config_yaml_file,
+            controller_manager_config_yaml_file,
+            ros_prefix,
+        )
+    )
 
 
 def test_ur_name(ur_urdf_xml):

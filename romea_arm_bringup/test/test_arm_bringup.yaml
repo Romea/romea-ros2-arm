@@ -21,7 +21,11 @@ configuration:
     file: config/ur5e/default_kinematics.yaml
   joint_limits:
     pkg: ur_description
-    file: config/ur5e/joints_limits.yaml
+    file: config/ur5e/joint_limits.yaml
+  initial_joint_positions:
+    pkg: ur_description
+    file: config/initial_positions.yaml
+
 geometry:
   parent_link: "base_link"
   xyz: [1.0, 2.0, 3.0]

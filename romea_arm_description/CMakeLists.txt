@@ -16,6 +16,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_pytest REQUIRED)
+  configure_file(test/controller_manager.yaml  test/controller_manager.yaml)
   ament_add_pytest_test(test_gps_description test/test_arm_description.py)
 endif()
 

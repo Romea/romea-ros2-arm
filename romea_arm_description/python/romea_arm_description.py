@@ -14,18 +14,25 @@
 
 
 import xacro
-from xml.dom import minidom, Node
+from xml.dom import minidom
 from ament_index_python.packages import get_package_share_directory
 
 
-def ur_arm_urdf(prefix, mode, name, model,
-                parent_link, xyz, rpy,
-                ip,
-                calibration_config_yaml_file,
-                joint_limits_config_yaml_file,
-                initial_joint_positions_config_yaml_file,
-                controller_manager_config_yaml_file,
-                ros_prefix):
+def ur_arm_urdf(
+    prefix,
+    mode,
+    name,
+    model,
+    parent_link,
+    xyz,
+    rpy,
+    ip,
+    calibration_config_yaml_file,
+    joint_limits_config_yaml_file,
+    initial_joint_positions_config_yaml_file,
+    controller_manager_config_yaml_file,
+    ros_prefix,
+):
 
     xacro_file = (
         get_package_share_directory("romea_arm_description")
@@ -35,7 +42,7 @@ def ur_arm_urdf(prefix, mode, name, model,
         + ".xacro.urdf"
     )
 
-    ros2_control_config_urdf_file = "/tmp/"+prefix+name+"_ros2_control.urdf"
+    ros2_control_config_urdf_file = "/tmp/" + prefix + name + "_ros2_control.urdf"
 
     # print(calibration_config_yaml_file)
     # print(joints_limits_config_yaml_file)
@@ -59,14 +66,16 @@ def ur_arm_urdf(prefix, mode, name, model,
             "calibration_config_yaml_file": calibration_config_yaml_file,
             "joint_limits_config_yaml_file": joint_limits_config_yaml_file,
             "initial_joint_positions_config_yaml_file": initial_joint_positions_config_yaml_file,
-            "ros_prefix": ros_prefix
+            "ros_prefix": ros_prefix,
         },
     )
 
     ros_control_urdf_xml = minidom.Document()
     ros_control_urdf_xml_root = ros_control_urdf_xml.createElement("robot")
-    ros_control_urdf_xml_root.setAttribute("name", prefix+name+"_ros2_control")
-    ros_control_urdf_xml_root.appendChild(arm_urdf_xml.getElementsByTagName("ros2_control")[0])
+    ros_control_urdf_xml_root.setAttribute("name", prefix + name + "_ros2_control")
+    ros_control_urdf_xml_root.appendChild(
+        arm_urdf_xml.getElementsByTagName("ros2_control")[0]
+    )
     ros_control_urdf_xml.appendChild(ros_control_urdf_xml_root)
 
     with open(ros2_control_config_urdf_file, "w") as f:
