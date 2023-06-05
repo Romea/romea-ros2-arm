@@ -1,0 +1,14 @@
+repositories:
+  romea_core/romea_common:
+    type: git
+    url: https://github.com/Romea/romea-core-common.git
+    version: main
+
+  romea_ros2/tools/romea_common:
+    type: git
+    url: https://github.com/Romea/romea-ros2-common.git
+    version: main
+  romea_ros2/interfaces/manipulators/romea_arm:
+    type: git
+    url: https://github.com/Romea/romea-ros2-arm.git
+    version: main
