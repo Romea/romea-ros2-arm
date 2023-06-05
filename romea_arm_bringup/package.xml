@@ -20,7 +20,9 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <!-- <exec_depend>ur_robot_driver</exec_depend> -->
+  <depend>ur_description</depend>
+  <depend>ur_robot_driver</depend>
+
 
   <export>
     <build_type>ament_cmake</build_type>
