@@ -20,9 +20,7 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <!-- <exec_depend>romea_ublox_driver</exec_depend> -->
-  <!-- <exec_depend>nmea_navsat_driver</exec_depend> -->
-  <!-- <exec_depend>ntrip_client</exec_depend> -->
+  <!-- <exec_depend>ur_robot_driver</exec_depend> -->
 
   <export>
     <build_type>ament_cmake</build_type>
