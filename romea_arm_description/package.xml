@@ -15,6 +15,7 @@
   <depend>ament_index_python</depend>
   <depend>xacro</depend>
   <depend>ur_description</depend>
+  <depend>ur_robot_driver</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
