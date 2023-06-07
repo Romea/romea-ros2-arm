@@ -36,10 +36,6 @@ def get_robot_namespace(context):
     return LaunchConfiguration("robot_namespace").perform(context)
 
 
-def get_robot_urdf_description(context):
-    return LaunchConfiguration("robot_urdf_description").perform(context)
-
-
 def get_meta_description(context):
     arm_meta_description_file_path = LaunchConfiguration(
         "meta_description_file_path"
