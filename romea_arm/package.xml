@@ -3,11 +3,11 @@
 <package format="3">
   <name>romea_arm</name>
   <version>0.0.0</version>
-  <description>Romea arm metapackage</description>
+  <description>Romea arm stack</description>
 
   <maintainer email="jean.laneurit@inrae.fr">Jean Laneurit</maintainer>
 
-  <license>Apache 2.0</license>
+  <license>Apache License 2.0</license>
 
   <author>Jean Laneurit</author>
 
