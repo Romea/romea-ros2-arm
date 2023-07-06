@@ -8,6 +8,7 @@
   <xacro:arg name="xyz" default="0.0 0.0 0.0" />
   <xacro:arg name="rpy" default="0.0 0.0 0.0" />
   <xacro:arg name="ros_prefix" default="/" />
+  <xacro:arg name="ros_distro" default="" />
   <xacro:arg name="ip" default="192.168.1.101" />
   <xacro:arg name="controller_manager_config_yaml_file" default="" />
   <xacro:arg name="ros2_control_config_urdf_file" default="" />
@@ -32,6 +33,7 @@
     calibration_config_yaml_file="$(arg calibration_config_yaml_file)"
     joint_limits_config_yaml_file="$(arg joint_limits_config_yaml_file)"
     initial_joint_positions_config_yaml_file="$(arg initial_joint_positions_config_yaml_file)"
-    ros_prefix="$(arg ros_prefix)" />
+    ros_prefix="$(arg ros_prefix)"
+    ros_distro="$(arg ros_distro)" />
 
 </robot>

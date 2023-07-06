@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import os
 import xacro
 from xml.dom import minidom
 from ament_index_python.packages import get_package_share_directory
@@ -61,6 +62,7 @@ def ur_arm_urdf(
             "joint_limits_config_yaml_file": joint_limits_config_yaml_file,
             "initial_joint_positions_config_yaml_file": initial_joint_positions_config_yaml_file,
             "ros_prefix": ros_prefix,
+            "ros_distro": os.getenv("ROS_DISTRO")
         },
     )
 

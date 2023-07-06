@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="arm">
 
    <xacro:macro name="ur_arm"
-      params="prefix mode name model xyz rpy parent_link ip controller_manager_config_yaml_file ros2_control_config_urdf_file   calibration_config_yaml_file joint_limits_config_yaml_file initial_joint_positions_config_yaml_file ros_prefix">
+      params="prefix mode name model xyz rpy parent_link ip controller_manager_config_yaml_file ros2_control_config_urdf_file   calibration_config_yaml_file joint_limits_config_yaml_file initial_joint_positions_config_yaml_file ros_prefix ros_distro">
 
       <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro" />
 
@@ -144,26 +144,54 @@
       <!--   sim_ignition="${sim_ignition}" -->
 
       <!-- arm -->
-      <xacro:ur_robot
-         name="${prefix}${name}"
-         prefix="${ur_prefix}"
-         parent="${parent_link_name}"
-         joint_limits_parameters_file="${joint_limit_params_file}"
-         kinematics_parameters_file="${kinematics_params_file}"
-         physical_parameters_file="${physical_params_file}"
-         visual_parameters_file="${visual_params_file}"
-         safety_limits="${safety_limits}"
-         safety_pos_margin="${safety_pos_margin}"
-         safety_k_position="${safety_k_position}"
-         sim_gazebo="${sim_gazebo}"
-         headless_mode="${headless_mode}"
-         initial_positions="${initial_positions}"
-         robot_ip="${robot_ip}"
-         script_filename="${script_filename}"
-         output_recipe_filename="${output_recipe_filename}"
-         input_recipe_filename="${input_recipe_filename}">
-         <origin xyz="${xyz}" rpy="${rpy}" />
-      </xacro:ur_robot>
+      <xacro:if value="${ros_distro == 'galactic'}">
+
+         <xacro:ur_robot
+            name="${prefix}${name}"
+            prefix="${ur_prefix}"
+            parent="${parent_link_name}"
+            joint_limits_parameters_file="${joint_limit_params_file}"
+            kinematics_parameters_file="${kinematics_params_file}"
+            physical_parameters_file="${physical_params_file}"
+            visual_parameters_file="${visual_params_file}"
+            safety_limits="${safety_limits}"
+            safety_pos_margin="${safety_pos_margin}"
+            safety_k_position="${safety_k_position}"
+            sim_gazebo="${sim_gazebo}"
+            headless_mode="${headless_mode}"
+            initial_positions="${initial_positions}"
+            robot_ip="${robot_ip}"
+            script_filename="${script_filename}"
+            output_recipe_filename="${output_recipe_filename}"
+            input_recipe_filename="${input_recipe_filename}">
+            <origin xyz="${xyz}" rpy="${rpy}" />
+         </xacro:ur_robot>
+      </xacro:if>
+
+      <xacro:if value="${ros_distro != 'galactic'}">
+         <xacro:ur_robot
+            name="${prefix}${name}"
+            tf_prefix="${ur_prefix}"
+            parent="${parent_link_name}"
+            joint_limits_parameters_file="${joint_limit_params_file}"
+            kinematics_parameters_file="${kinematics_params_file}"
+            physical_parameters_file="${physical_params_file}"
+            visual_parameters_file="${visual_params_file}"
+            safety_limits="${safety_limits}"
+            safety_pos_margin="${safety_pos_margin}"
+            safety_k_position="${safety_k_position}"
+            sim_gazebo="${sim_gazebo}"
+            headless_mode="${headless_mode}"
+            initial_positions="${initial_positions}"
+            robot_ip="${robot_ip}"
+            script_filename="${script_filename}"
+            output_recipe_filename="${output_recipe_filename}"
+            input_recipe_filename="${input_recipe_filename}">
+            <origin xyz="${xyz}" rpy="${rpy}" />
+         </xacro:ur_robot>
+      </xacro:if>
+
+
 
 
       <xacro:if value="${mode == 'simulation'}">
