@@ -20,8 +20,8 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <depend>ur-description</depend>
-  <depend>ur-robot-driver</depend>
+  <depend>ur_description</depend>
+  <depend>ur_robot_driver</depend>
 
 
   <export>
