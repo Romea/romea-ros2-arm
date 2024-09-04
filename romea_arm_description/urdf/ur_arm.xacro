@@ -192,9 +192,7 @@
       </xacro:if>
 
 
-
-
-      <xacro:if value="${mode == 'simulation'}">
+      <xacro:if value="${'simulation' in mode}">
          <gazebo>
             <plugin filename="libromea_gazebo_ros2_control.so" name="gazebo_ros2_control">
                <ros2_control_config_file>${ros2_control_config_urdf_file}</ros2_control_config_file>
