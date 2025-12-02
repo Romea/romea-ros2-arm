@@ -2,13 +2,10 @@ repositories:
   romea_core/romea_common:
     type: git
     url: git@forge.inrae.fr:romea_core/romea_common.git
-    version: devel
 
   romea_ros2/tools/romea_common:
     type: git
     url: git@forge.inrae.fr:romea_ros2/tools/romea_common.git
-    version: devel
   romea_ros2/interfaces/manipulators/romea_arm:
     type: git
     url: git@forge.inrae.fr:romea_ros2/interfaces/manipulators/romea_arm.git
-    version: devel
