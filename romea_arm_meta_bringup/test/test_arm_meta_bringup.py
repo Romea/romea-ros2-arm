@@ -14,14 +14,19 @@
 
 
 import os
+
 import pytest
 
-from romea_arm_bringup import ArmMetaDescription
+from romea_arm_meta_bringup.meta_description import (
+    ArmMetaDescription,
+    get_complete_configuration,
+    get_specifications,
+)
 
 
 @pytest.fixture(scope="module")
 def meta_description():
-    meta_description_file_path = os.path.join(os.getcwd(), "test_arm_bringup.yaml")
+    meta_description_file_path = os.path.join(os.getcwd(), "test_arm_meta_bringup.yaml")
     return ArmMetaDescription(meta_description_file_path)
 
 
@@ -29,28 +34,24 @@ def test_get_name(meta_description):
     assert meta_description.get_name() == "arm"
 
 
-# def test_get_namespace(meta_description):
-#     assert meta_description.get_namespace() == "ns"
+def test_get_namespace(meta_description):
+    assert meta_description.get_namespace() == "ns"
 
 
-def test_has_driver_configuration(meta_description):
-    assert meta_description.has_driver_configuration() is True
-
-
-def test_get_driver_pkg(meta_description):
-    assert meta_description.get_driver_pkg() == "ur_robot_driver"
-
-
-def test_get_driver_ip(meta_description):
-    assert meta_description.get_driver_ip() == "192.168.1.101"
-
-
-def test_get_type(meta_description):
-    assert meta_description.get_type() == "ur"
+def test_get_manufacturer(meta_description):
+    assert meta_description.get_manufacturer() == "ur"
 
 
 def test_get_model(meta_description):
-    assert meta_description.get_model() == "5e"
+    assert meta_description.get_model() == "05"
+
+
+def test_get_version(meta_description):
+    assert meta_description.get_version() == "e"
+
+
+def test_get_launch_file(meta_description):
+    assert meta_description.get_launch_file() is not None
 
 
 def test_get_parent_link(meta_description):
@@ -63,3 +64,18 @@ def test_get_xyz(meta_description):
 
 def test_get_rpy(meta_description):
     assert meta_description.get_rpy() == [4.0, 5.0, 6.0]
+
+
+def test_get_records(meta_description):
+    records = meta_description.get_records()
+    assert records["joint_states"] is False
+
+
+def test_get_specifications(meta_description):
+    arm_specifactions = get_specifications(meta_description)
+    assert arm_specifactions['control_rate'] == 500
+
+
+def test_get_complete_configuration(meta_description):
+    arm_configuration = get_complete_configuration(meta_description)
+    assert arm_configuration['control_rate'] == 500

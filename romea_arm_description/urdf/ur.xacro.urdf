@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="arm">
+
+  <!-- common arguments-->
+  <xacro:arg name="mode" default="simulation_gazebo" />
+  <xacro:arg name="name" default="arm" />
+  <xacro:arg name="tf_prefix" default="" />
+  <xacro:arg name="ros_distro" default=""/>
+  <xacro:arg name="ros_namespace" default="/"/>
+  <xacro:arg name="arm_config_yaml_file" default="" /> 
+  <xacro:arg name="controllers_config_yaml_file" default="" /> 
+  <xacro:arg name="generate_gazebo_tag" default="false" />
+  <xacro:arg name="generate_ros2_control_tag" default="false" />
+  <xacro:arg name="standalone" default="true" /> 
+
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/mode.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/name.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/tf_prefix.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/ros_distro.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/ros_namespace.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/standalone.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/generate_gazebo_tag.xacro"/>
+  <xacro:include filename="$(find romea_common_description)/urdf/arguments/generate_ros2_control_tag.xacro"/>
+
+  <xacro:property name="arm_config_yaml_file" value="$(arg arm_config_yaml_file)" />
+  <xacro:property name="configuration" value="${xacro.load_yaml(arm_config_yaml_file)}" />
+
+  <xacro:property name="name" value="$(arg name)"/>
+  <xacro:property name="model" value="${configuration['model']}"/>
+  <xacro:property name="version" value="${configuration['version']}"/>
+  <xacro:property name="link_name" value="${tf_prefix + name + '_link'}"/>
+  <xacro:property name="joint_name" value="${tf_prefix + name + '_joint'}"/>
+  <xacro:property name="xyz" value="${configuration['xyz']}"/>
+  <xacro:property name="rpy" value="${[v * pi / 180.0 for v in configuration['rpy']]}"/>
+
+  <xacro:property
+    name="home_joint_positions"
+    value="${dict((k, v * pi / 180.0) for k, v in configuration['home_joint_positions'].items())}"/>
+
+  <xacro:property
+    name="parent_link_name"
+    value="${'world' if configuration['parent_link'] == 'world' else tf_prefix + configuration['parent_link']}"/>
+
+  <xacro:if value="${standalone}">
+    <link name="${parent_link_name}"/>
+  </xacro:if>    
+
+  <!-- additional arguments-->
+  <xacro:arg name="controllers_config_yaml_file" default="" />
+  <xacro:arg name="joint_limit_params_yaml_file" default="$(find ur_description)/config/ur${model}${version}/joint_limits.yaml"/>
+  <xacro:arg name="kinematics_params_yaml_file" default="$(find ur_description)/config/ur${model}${version}/default_kinematics.yaml"/>
+  <xacro:arg name="physical_params_yaml_file" default="$(find ur_description)/config/ur${model}${version}/physical_parameters.yaml"/>
+  <xacro:arg name="visual_params_yaml_file" default="$(find ur_description)/config/ur${model}${version}/visual_parameters.yaml"/>
+  <xacro:arg name="headless_mode" default="false" />
+  <xacro:arg name="ip" default="0.0.0.0" />
+  <xacro:arg name="script_filename" default=""/>
+  <xacro:arg name="output_recipe_filename" default=""/>
+  <xacro:arg name="input_recipe_filename" default=""/>
+  <xacro:arg name="reverse_ip" default="0.0.0.0"/>
+  <xacro:arg name="script_command_port" default="50004"/>
+  <xacro:arg name="reverse_port" default="50001"/>
+  <xacro:arg name="script_sender_port" default="50002"/>
+  <xacro:arg name="trajectory_port" default="50003"/>
+  <xacro:arg name="use_tool_communication" default="false" />
+  <xacro:arg name="tool_voltage" default="0" />
+  <xacro:arg name="tool_parity" default="0" />
+  <xacro:arg name="tool_baud_rate" default="115200" />
+  <xacro:arg name="tool_stop_bits" default="1" />
+  <xacro:arg name="tool_rx_idle_chars" default="1.5" />
+  <xacro:arg name="tool_tx_idle_chars" default="3.5" />
+  <xacro:arg name="tool_device_name" default="/tmp/ttyUR" />
+  <xacro:arg name="tool_tcp_port" default="54321" />
+  <xacro:arg name="safety_limits" default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+
+
+  <!-- <xacro:if_before_jazzy>
+
+    <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+    <xacro:ur_robot
+      name="$(arg name)"
+      tf_prefix="$(arg prefix)$(arg name)_"
+      parent="$(arg prefix)$(arg parent_link)"
+      joint_limits_parameters_file="$(arg joint_limit_params)"
+      kinematics_parameters_file="$(arg kinematics_params)"
+      physical_parameters_file="$(arg physical_params)"
+      visual_parameters_file="$(arg visual_params)"
+      transmission_hw_interface="$(arg transmission_hw_interface)"
+      safety_limits="$(arg safety_limits)"
+      safety_pos_margin="$(arg safety_pos_margin)"
+      safety_k_position="$(arg safety_k_position)"
+      sim_gazebo="${mode == 'simulation_gazebo_classic'}"
+      generate_ros2_control_tag= "$(arg ros2_control)"
+      headless_mode="$(arg headless_mode)"
+      initial_positions="${xacro.load_yaml(initial_positions_yaml_file)}"
+      use_tool_communication="$(arg use_tool_communication)"
+      tool_voltage="$(arg tool_voltage)"
+      tool_parity="$(arg tool_parity)"
+      tool_baud_rate="$(arg tool_baud_rate)"
+      tool_stop_bits="$(arg tool_stop_bits)"
+      tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+      tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+      tool_device_name="$(arg tool_device_name)"
+      tool_tcp_port="$(arg tool_tcp_port)"
+      robot_ip="$(arg robot_ip)"
+      script_filename="$(arg script_filename)"
+      output_recipe_filename="$(arg output_recipe_filename)"
+      input_recipe_filename="$(arg input_recipe_filename)"
+      reverse_ip="$(arg reverse_ip)"
+      script_command_port="$(arg script_command_port)"
+      reverse_port="$(arg reverse_port)"
+      script_sender_port="$(arg script_sender_port)"
+      trajectory_port="$(arg trajectory_port)"
+      >
+      <origin xyz="$(arg xyz)" rpy="$(arg rpy)" />
+    </xacro:ur_robot>
+
+  </xacro:if_before_jazzy> -->
+
+
+  <!-- <link name="${parent_link_name}" /> -->
+
+  <!-- <xacro:if value="${standalone == False}">
+    <joint name="${joint_name}" type="fixed">
+      <axis xyz="0 0 1" />
+      <origin xyz="${xyz[0]} ${xyz[1]} ${xyz[2]}"
+        rpy="${rpy[0]/180.*pi} ${rpy[1]/180.*pi} ${rpy[2]/180.*pi}" />
+      <parent link="${parent_link_name}" />
+      <child link="${link_name}" />
+    </joint>
+  </xacro:if> -->
+
+  <xacro:if value="${ros_distro_ge_jazzy}">
+
+    <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+    <xacro:include filename="$(find ur_description)/urdf/inc/ur_transmissions.xacro" />
+
+    <xacro:ur_robot
+      name="${name}"
+      tf_prefix="${tf_prefix}${name}_"
+      parent="${parent_link_name}"
+      joint_limits_parameters_file="$(arg joint_limit_params_yaml_file)"
+      kinematics_parameters_file="$(arg kinematics_params_yaml_file)"
+      physical_parameters_file="$(arg physical_params_yaml_file)"
+      visual_parameters_file="$(arg visual_params_yaml_file)"
+      safety_limits="$(arg safety_limits)"
+      safety_pos_margin="$(arg safety_pos_margin)"
+      safety_k_position="$(arg safety_k_position)"
+      force_abs_paths="${simulation}"
+      >
+      <origin xyz="${xyz[0]} ${xyz[1]} ${xyz[2]}" rpy="${rpy[0]} ${rpy[1]} ${rpy[2]}" />
+    </xacro:ur_robot>
+
+    <xacro:if value="${generate_ros2_control_tag}">
+
+      <xacro:if  value="${simulation}">
+        <xacro:include filename="$(find ur_simulation_gz)/urdf/ur_gz.ros2_control.xacro" />  
+        <xacro:ur_ros2_control
+          name="$(arg name)"
+          tf_prefix="$(arg tf_prefix)$(arg name)_"
+          initial_positions="${home_joint_positions}"
+        />
+      </xacro:if>
+
+      <xacro:if  value="${live}">
+
+        <xacro:include filename="$(find ur_robot_driver)/urdf/ur.ros2_control.xacro" />
+
+        <xacro:ur_ros2_control
+          name="${name}"
+          tf_prefix="${tf_prefix}${name}_"
+          kinematics_parameters_file="$(arg kinematics_params_yaml_file)"
+          initial_positions="${home_joint_positions}"
+          headless_mode="$(arg headless_mode)"
+          robot_ip="$(arg ip)"
+          script_filename="$(arg script_filename)"
+          output_recipe_filename="$(arg output_recipe_filename)"
+          input_recipe_filename="$(arg input_recipe_filename)"
+          reverse_ip="$(arg reverse_ip)"
+          script_command_port="$(arg script_command_port)"
+          reverse_port="$(arg reverse_port)"
+          script_sender_port="$(arg script_sender_port)"
+          trajectory_port="$(arg trajectory_port)"
+          use_tool_communication="$(arg use_tool_communication)"
+          tool_voltage="$(arg tool_voltage)"
+          tool_parity="$(arg tool_parity)"
+          tool_baud_rate="$(arg tool_baud_rate)"
+          tool_stop_bits="$(arg tool_stop_bits)"
+          tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+          tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+          tool_device_name="$(arg tool_device_name)"
+          tool_tcp_port="$(arg tool_tcp_port)"
+        />
+      </xacro:if>
+      
+    </xacro:if>   
+  </xacro:if>
+
+  <xacro:include filename="$(find romea_common_description)/urdf/ros2_control.xacro"/>
+
+  <xacro:if value="${gazebo_classic and generate_gazebo_tag}">
+    <xacro:ros2_control_gazebo_plugin
+      plugin_filename="libgazebo_ros2_control.so"
+      plugin_name="gazebo_ros2_control"
+      ros_namespace="$(arg ros_namespace)"
+      controller_manager_config_yaml_file="$(arg controllers_config_yaml_file)"
+      hold_joints="true" />
+  </xacro:if>
+
+  <xacro:if value="${gazebo and generate_gazebo_tag}">
+    <xacro:ros2_control_gazebo_plugin
+      plugin_filename="gz_ros2_control-system"
+      plugin_name="gz_ros2_control::GazeboSimROS2ControlPlugin"
+      ros_namespace="$(arg ros_namespace)"
+      controller_manager_config_yaml_file="$(arg controllers_config_yaml_file)" />
+  </xacro:if> 
+
+</robot>

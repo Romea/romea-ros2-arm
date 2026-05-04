@@ -13,7 +13,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>romea_arm_bringup</exec_depend>
+  <exec_depend>romea_arm_meta_bringup</exec_depend>
   <exec_depend>romea_arm_description</exec_depend>
 
   <export>

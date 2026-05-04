@@ -1,0 +1,4 @@
+control_rate: Hz
+xyz: m
+rpy: °
+"*joint": °

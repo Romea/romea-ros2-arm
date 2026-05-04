@@ -1,0 +1,25 @@
+version:
+  list: ["cb", "e", "ur"]
+
+model:
+  depend: [version]
+  dict:
+    cb: ["03", "05", "10"]
+    e: ["03", "05", "07", "10", "12", "16"]
+    ur: ["8L", "15", "18", "20", "30"]
+
+control_rate:
+  depend: [version]
+  dict:
+    cb: 125 # Hz
+    e: 500 # Hz
+    ur: 500 # Hz
+
+home_joint_positions:
+  defaults:
+    shoulder_pan_joint: 0.0 # °
+    shoulder_lift_joint: -90.0 # °
+    elbow_joint: 0.0 # °
+    wrist_1_joint: -90.0 # °
+    wrist_2_joint: 0.0 # °
+    wrist_3_joint: 0.0 # °

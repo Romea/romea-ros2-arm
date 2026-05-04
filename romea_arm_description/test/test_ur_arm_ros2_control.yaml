@@ -1,0 +1,22 @@
+arm:
+  headless_mode: False
+  ip: "1.2.3.4"
+  script_filename: ""
+  output_recipe_filename: ""
+  input_recipe_filename: ""
+  reverse_ip: "127.0.0.1"
+  script_command_port: 50004
+  reverse_port: 50001
+  script_sender_port: 50002
+  trajectory_port: 50003
+
+tool:
+  use_communication: False
+  voltage: 0
+  parity: 0
+  baud_rate: 115200
+  stop_bits: 1
+  rx_idle_chars: 1.5
+  tx_idle_chars: 3.5
+  device_name: "/tmp/ttyUR"
+  tcp_port: 54321

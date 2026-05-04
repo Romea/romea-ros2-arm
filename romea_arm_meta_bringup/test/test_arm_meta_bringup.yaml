@@ -1,0 +1,26 @@
+name: arm
+namespace: ns
+launch:
+  - include:
+      file: "$(find-pkg-share romea_arm_meta_bringup)/profile/ur.launch.py"
+      # arg:
+      #   - name: ip
+      #     value: "1.2.3.4"
+configuration:
+  manufacturer: ur
+  model: "05"
+  version: e
+  # home_joint_positions:
+  #   shoulder_pan_joint: 0.0 # °
+  #   shoulder_lift_joint: -80 # °
+  #   elbow_joint: 0.0 # °
+  #   wrist_1_joint: -90 # °
+  #   wrist_2_joint: 0.0 # °
+  #   wrist_3_joint: 0.0 # °
+
+location:
+  parent_link: "base_link"
+  xyz: [ 1.0, 2.0, 3.0 ]
+  rpy: [ 4.0, 5.0, 6.0 ]
+records:
+  joint_states: false
