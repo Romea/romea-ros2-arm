@@ -1,186 +1,254 @@
-# 1) Overview #
+# romea_arm_meta_bringup
 
-The romea_arm_bringup package provides  : 
+## Overview
 
- - launch files able to launch ros2 arm drivers according a meta-description file provided by user (see next section for arm meta-description file overview), only drivers for Universal Robot arms are supported for now :
+romea_arm_meta_bringup provides tools to describe and launch robotic arms using a meta-description approach.
 
-   - [ur_robot_driver](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver)
+It allows defining arm systems in a high-level YAML format and automatically generating consistent ROS 2 artifacts such as:
 
-   It is possible to launch a driver via command line : 
+* configuration files → used as generic ROS 2 configuration inputs
+* controllers configuration files → used by the ROS 2 controller manager
+* launch files → used to start arm drivers and controllers
+* URDF description files → used to load the arm into simulators
 
-    ```console
-    ros2 launch romea_arm_bringup arm_driver.launch.py robot_namespace:=robot meta_description_file_path:=/path_to_file/meta_description_file.yaml
-    ```
+This package is built on top of `romea_common_meta_bringup` and specializes it for robotic arm integration. 
 
-   where :
+It also provides launch files that allow controlling the arm both on a real robot and in simulation.
 
-   - *robot_namespace* is the name of the robot 
-   - *meta_description_file_path* is the absolute path of meta-description file    
+---
 
- - launch files able to launch ros2 arm controller according a meta-description file provided by user, supported controllers are provided from [ros2 controllers](https://github.com/ros-controls/ros2_controllers) package :
+## Arm meta-description concept
 
-   - joint_trajectory_controller
-   - scaled_joint_trajectory_controller
-   - forward_velocity_controller
-   - forward_position_controller
+An `arm meta-description` is a YAML file that defines a robotic arm and how it should be integrated into a system. It centralizes:
 
-   It is possible to launch one or several controllers via command line : 
+* arm identification (name, namespace)
+* hardware + control configuration (manufacturer, model, version)
+* kinematic attachment (parent link, pose)
+* ROS2 launch description
 
-    ```console
-    ros2 launch romea_arm_bringup arm_controllers.launch.py robot_namespace:=robot meta_description_file_path:=/path_to_file/meta_description_file.yaml
-    ```
+---
 
-   where :
+### Example meta-description
 
-   - *robot_namespace* is the name of the robot 
-   - *meta_description_file_path* is the absolute path of meta-description file    
+```yaml id="9lfc1h"
+name: arm
+namespace: ns
 
- - a python module able to load and parse arm meta-description file as well as to create URDF description of the arm according a given meta-description.
+configuration:
+  manufacturer: ur
+  model: "05"
+  version: e
+  control_rate: 500
+  home_joint_positions:
+    shoulder_pan_joint: 0.0
+    shoulder_lift_joint: -90.0
+    elbow_joint: 0.0
+    wrist_1_joint: -90.0
+    wrist_2_joint: 0.0
+    wrist_3_joint: 0.0
 
- - a ros2 python executable able to create arm URDF description via command line according a given meta-description file  :
+location:
+  parent_link: base_link
+  xyz: [1.0, 2.0, 3.0]
+  rpy: [4.0, 5.0, 6.0]
 
-  ```console
-  ros2 run romea_arm_bringup urdf_description.py robot_namespace:robot meta_description_file_path:/path_to_file/meta_description_file.yaml > arm.urdf`
-  ```
-
-   where :
-
-   - *robot_namespace* is the name of the robot 
-   - *meta_description_file_path* is the absolute path of meta-description file    
-
-   This URDF  can be directly concatened with mobile base and ensor URDFs to create a complete URDF description of the robot.  
-
-   
-
-
-
-# 2) Arm meta-description #
-
-As seen below arm meta-description file is a yaml file constituted by five items. The first item is the name of the arm defined by user. The second one is the configuration of ROS2 driver used to communicate with the arm (see section 4 for more explanations). The third item is the configuration of ROS2 controllers used to control the arm (see section 4 for more explanations). The fourth item provides basics specifications of the arm and the fifth item specifies where the arm is located on the robot, these informations will be used to create URDF description and by user to configure its algorithms.  Finally, the last item gives the topics to be recorded into the ROS bag during experiments or simulation. Thanks to remappings written into launch files, arm topics are always the same names for each drivers, controllers and simulator plugins.       
-
-Example :
-```yaml
-  name: arm # name of the arm given by user
-  driver: # arm driver configuration
-    pkg: ur_robot_driver  # ros2 driver package choiced by user and its parameters 
-    ip: "192.168.1.101"
-  control:
-    controller_manager: # controller manager configuration
-      update_rate: 500
-      configuration: # controller manager yaml configuration file path
-        pkg: romea_arm_bringup
-        file: config/ur_controller_manager.yaml
-    controllers: # controllers configuration
-      selected: [joint_trajectory_controller] # list of started controllers
-      configuration: # controllers yaml configuration file
-        pkg: romea_arm_bringup
-        file: config/ur_controllers.yaml
-  configuration:  # arm basic specifications
-    type: ur  # type of arm
-    model: 5e  # model of arm
-    calibration: # calibration file path
-      pkg: ur_description
-      file: config/ur5e/default_kinematics.yaml
-    joint_limits: # joint limits file path
-      pkg: ur_description
-      file: config/ur5e/joint_limits.yaml
-    initial_joint_positions: #  initial joint positions file path
-      pkg: ur_description
-      file: config/initial_positions.yaml
-  geometry: # geometry configuration 
-    parent_link: "base_link" # name of parent link where is located the arm
-    xyz: [1.0, 2.0, 3.0]  # position of the arm
-    rpy: [4.0, 5.0, 6.0]  # orientation of the arm
-  records:
-    joint_states: true
+launch:
+  - include:
+      file: "$(find-pkg-share romea_arm_meta_bringup)/profile/ur.launch.py"
 ```
 
-# 4) Supported arm models
+### Launch files Profiles
 
-Supported arm receiver are listed in the following table :
+The `profile/` directory contains ready-to-use ROS2 launch files like `ur.launch.py`.
 
-|  type  |   model    |
-| :----: | :--------: |
-| universal robot |    ur10     |
-| universal robot |    ur5e     |
+They allow:
 
-# 5) Supported arm ROS2 drivers
+* launching arm drivers
+* launching simulator bridges
+* reusing standardized bringup configurations
 
-Only driver from Universal Robot arms are supported for now  [ur_robot_driver](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver). In order to used it, you can specify driver item in arm meta-description file like this:
+---
 
-- UR robot driver:
+## Scripts
 
-```yaml
-  pkg: "ur_robot_driver"  # ROS2 package name  
-    ip:  "192.168.1.101"  # ip of the arm
+`romea_arm_meta_bringup` provides several scripts to generate ROS2 artifacts (configuration, controllers configuration, launch and URDF files) from an arm meta-description; the usage and resulting outputs are described below.
+
+### Generate configuration file
+
+```bash id="rq0ybi"
+generate-arm-configuration-file \
+  meta_description_file_path:=path/to/arm_meta_description.yaml \
+  extended:=false
 ```
 
-<!-- For each driver a python launch file with the name of the ROS2 package is provided in launch directory. When the meta-description is read by the main launch file called arm_driver.launch.py the corresponding driver is automatically launched taking into account parameters define by user. -->
+#### Example output
 
-# 5) Supported arm ROS2 controllers
-
-Only controllers from [ros2_controllers package](https://github.com/ros-controls/ros2_controllers). In order to used one of them, you need to specify control item in arm meta-description file like this:
-
-```yaml
-  control:
-    controller_manager: # controller manager configuration
-      update_rate: 500  # rate of controller manager 
-      configuration: # controller manager yaml configuration file path
-        pkg: romea_arm_bringup
-        file: config/ur_controller_manager.yaml
-    controllers: # controllers configuration
-      selected: [joint_trajectory_controller] # list of started controllers
-      configuration: # controllers yaml configuration file
-        pkg: romea_arm_bringup
-        file: config/ur_controllers.yaml
+```yaml id="pgd8yu"
+model: 05
+version: e
+manufacturer: ur
+control_rate: 500  # unit Hz
+home_joint_positions:
+    shoulder_pan_joint: 0.0  # unit °
+    shoulder_lift_joint: -90.0  # unit °
+    elbow_joint: 0.0  # unit °
+    wrist_1_joint: -90.0  # unit °
+    wrist_2_joint: 0.0  # unit °
+    wrist_3_joint: 0.0  # unit °
+parent_link: base_link
+xyz: [1.0, 2.0, 3.0]  # unit m
+rpy: [4.0, 5.0, 6.0]  # unit °
 ```
 
-Where you need to define controller_manager item by setting the control rate frequency and providing the path of the configuration file containing the list of controllers that can be used to control the arm (see example below). 
+---
 
-```yaml
-controller_manager:
+### Generate controllers configuration file
+
+Controllers configuration templates are provided in the `config/` directory and contain placeholders:
+
+* `ros_namespace`
+* `tf_prefix`
+* `control_rate`
+
+These values are automatically replaced:
+
+```bash id="9xg4hf"
+generate-arm-controllers-configuration-file \
+  mode:=live \
+  robot_namespace:=robot \
+  meta_description_file_path:=path/to/arm_meta_description.yaml
+```
+
+#### Example (simplified)
+
+```yaml id="lgp6xe"
+/robot/ns/arm/controller_manager:
   ros__parameters:
-    joint_state_broadcaster: # name of the controller
-      type: joint_state_broadcaster/JointStateBroadcaster # type of the controller
+    update_rate: 500
 
-    joint_trajectory_controller: # name of the controller
-      type: joint_trajectory_controller/JointTrajectoryController # type of the controller
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
 
-    forward_velocity_controller: # name of the controller
-      type: velocity_controllers/JointGroupVelocityController # type of the controller
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
-    forward_position_controller: # name of the controller
-      type: position_controllers/JointGroupPositionController # type of the controller
+/robot/ns/arm/joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - robot_arm_shoulder_pan_joint
+      - robot_arm_shoulder_lift_joint
+      - robot_arm_elbow_joint
+      - robot_arm_wrist_1_joint
+      - robot_arm_wrist_2_joint
+      - robot_arm_wrist_3_joint
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
 ```
-And where you need to define controllers item by providing the path of the file containing their configuration (see example below  for an ur arm  controlled by an joint_trajectory controller).
+
+---
+
+### Generate launch file
+
+Generates a YAML ROS 2 launch file from the meta-description.
+
+```bash
+generate-arm-launch-file \
+  robot_namespace:=robot \
+  meta_description_file_path:=path/to/arm_meta_description.yaml
+```
+
+#### Example output
 
 ```yaml
-joint_trajectory_controller: #controller name, don't add namespace
-  ros__parameters:
-    joints: # list of joints to control
-      - shoulder_pan_joint  #shouler pan joint name, don't add prefix
-      - shoulder_lift_joint #shouler lift joint name, don't add prefix
-      - elbow_joint #elbow joint name, don't add prefix
-      - wrist_1_joint #wrist_1 joint name, don't add prefix
-      - wrist_2_joint #wrist_2 joint name, don't add prefix
-      - wrist_3_joint #wrist_3 joint name, don't add prefix
-    command_interfaces:  #Command interfaces provided by the hardware interface for all joints.
-      - position  
-    state_interfaces: # State interfaces provided by the hardware for all joints
-      - position
-      - velocity
-    state_publish_rate: 100.0 # Frequency (in Hz) at which the controller state is published.
-    action_monitor_rate: 20.0 # Frequency (in Hz) at which the action goal status is monitored
-    allow_partial_joints_goal: false
-    constraints:
-      stopped_velocity_tolerance: 0.2
-      goal_time: 0.0
-      shoulder_pan_joint: { trajectory: 0.2, goal: 0.1 } #constraints for shouler pan joint, don't add prefix before joint name
-      shoulder_lift_joint: { trajectory: 0.2, goal: 0.1 } #constraints for shouler lift joint, don't add prefix before joint name
-      elbow_joint: { trajectory: 0.2, goal: 0.1 } #constraints for elbow joint, don't add prefix before joint name
-      wrist_1_joint: { trajectory: 0.2, goal: 0.1 } #constraints for wrist1 joint, don't add prefix before joint name
-      wrist_2_joint: { trajectory: 0.2, goal: 0.1 } #constraints for wrist2 joint, don't add prefix before joint name
-      wrist_3_joint: { trajectory: 0.2, goal: 0.1 } #constraints for wrist3 joint, don't add prefix before joint name
+launch:
+- arg:
+    name: mode
+    default: live
+- arg:
+    name: controllers_configuration_file_path
+    default: $(find-pkg-share romea_arm_meta_bringup)/config/ur_controllers_$(var mode).yaml
+- group:
+  - push-ros-namespace: {namespace: robot}
+  - push-ros-namespace: {namespace: ns}
+  - push-ros-namespace: {namespace: arm}
+  - let: {name: model, value: '05'}
+  - let: {name: version, value: e}
+  - let: {name: manufacturer, value: ur}
+  - let: {name: control_rate, value: '500'}
+  - let: {name: parent_link, value: base_link}
+  - let: {name: xyz, value: '[1.0, 2.0, 3.0]'}
+  - let: {name: rpy, value: '[4.0, 5.0, 6.0]'}
+  - let: {name: tf_prefix, value: robot_}
+  - let: {name: frame_id, value: robot_arm_link}
+  - include:
+      file: $(find-pkg-share romea_arm_meta_bringup)/profile/ur.launch.py
 ```
 
-Please note that no namespace for controller names and no prefix for joint names must be specified in the configuration file. They will be added automatically by the launch file script according to the robot and arm names. For example, if we have a robot called robot1 with an arm called arm1, then the controllers will be launched in the namespace /robot1/arm1 and the prefix robot1_arm1_ will be added to all joint names.
+#### Notes
+
+* the launch file is generated from the `launch` section of the meta-description
+* namespaces are automatically constructed (`robot → device → arm`)
+* all configuration values are exposed as `let` variables
+* the selected profile is included at the end
+* the controllers configuration file is selected based on the `mode`
+
+This file can be used directly with ROS2 or generated dynamically using `arm.launch.py`.
+
+## Usage
+
+The package provides **two main launch files**:
+
+* `arm.launch.py` → for dynamic bringup (live or simulation mode)
+* `simulation_test.launch.py` → for full simulation test
+
+---
+
+### Dynamic bringup
+
+When using `arm.launch.py`, the following steps are performed automatically:
+
+```bash
+ros2 launch romea_arm_meta_bringup arm.launch.py \
+  mode:=live \
+  robot_namespace:=robot \
+  meta_description_file_path:=path/to/arm_meta_description.yaml
+```
+
+* generation of the URDF description
+* generation of the arm configuration file
+* generation of the controllers configuration
+* generation of the launch file
+* execution of the generated launch file
+
+
+#### Live or simulation mode
+
+The `mode` parameter controls the behavior:
+
+* `live` → starts the arm driver and controllers
+* `simulation_<simulator>` → starts controllers and simulation bridges
+
+---
+
+### Simulation test
+
+For a complete simulation setup, use:
+
+```bash
+ros2 launch romea_arm_meta_bringup simulation_test.launch.py \
+  simulator_type:=gazebo \
+  robot_namespace:=robot \
+  meta_description_file_path:=path/to/arm_meta_description.yaml
+```
+
+This launch file:
+
+* starts the simulator
+* generates and loads the URDF
+* spawns the arm in simulation
+* calls `arm.launch.py` to start controllers and bridges
+
+---
+## Supported arms
+
+Currently, this package supports **Universal Robots (UR)** arms only. Support for additional robotic arms will be added in the future.
