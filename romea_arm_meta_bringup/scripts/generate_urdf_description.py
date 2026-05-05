@@ -3,9 +3,11 @@
 
 import sys
 
-from ament_index_python.packages import get_package_share_directory
 from romea_arm_meta_bringup.meta_description import ArmMetaDescription
-from romea_arm_meta_bringup.meta_description import generate_xml_urdf_description_str
+from romea_arm_meta_bringup.meta_description import (
+    generate_xml_urdf_description_str,
+    get_template_controllers_configuration_file_path
+)
 from romea_common_meta_bringup.script_parameters import (
     robot_urdf_description_generation_parameters_from_cli,
 )
@@ -30,13 +32,13 @@ def main():
         ),
     }
 
+    controllers_config_yaml_file = parameters.pop_str(
+        "controller_configuration_file_path",
+        get_template_controllers_configuration_file_path(mode, meta_description)
+    )
+
     if additional_arguments["generate_gazebo_tag"] == "true":
-        manufacturer = meta_description.get_manufacturer()
-        pkg = get_package_share_directory("romea_arm_meta_bringup")
-        short_mode = "simulation" if "simulation" in mode else mode
-        default = f"{pkg}/config/{manufacturer}_controllers_{short_mode}.yaml"
-        controllers_file_path = parameters.pop_str("controllers_configuration_file_path", default)
-        additional_arguments["controllers_config_yaml_file"] = controllers_file_path
+        additional_arguments["controllers_config_yaml_file"] = controllers_config_yaml_file
 
     additional_arguments.update(parameters.remaining())
 

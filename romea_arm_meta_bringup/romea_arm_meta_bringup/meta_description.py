@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 
 from ament_index_python.packages import get_package_share_directory
 
 import romea_arm_description
 from romea_common_meta_bringup.meta_description import SensorMetaDescription
 from romea_common_meta_bringup.ros_launch import LaunchFileGenerator
-from romea_common_meta_bringup.utils import device_urdf_prefix
+from romea_common_utils import render_template_file
 
 import yaml
 
@@ -60,27 +61,31 @@ def get_complete_controllers_configuration(mode, meta_description):
     return yaml.safe_load(string)
 
 
-def generate_yaml_controllers_configuration_file_str(mode, meta_description):
+# TODO a factoriser avec implement
+def get_template_controllers_configuration_file_path(mode, meta_description):
     manufacturer = meta_description.get_manufacturer()
-    configuration = get_complete_configuration(meta_description)
     short_mode = "simulation" if "simulation" in mode else mode
     pkg = get_package_share_directory("romea_arm_meta_bringup")
-    # return meta_description.generate_controllers_configuration_file(
-    #     f"{pkg}/config/{manufacturer}_controllers_{short_mode}.yaml",
-    #     meta_description.get_urdf_prefix(),
-    #     meta_description.get_name(),
-    #     configuration
-    # )
-    with open(f"{pkg}/config/{manufacturer}_controllers_{short_mode}.yaml", "r") as f:
-        content = f.read()
+    file_path = f"{pkg}/config/{manufacturer}_controllers_{short_mode}.yaml"
 
-    content = content.replace("$(var control_rate)", str(configuration["control_rate"]))
-    content = content.replace("$(var ros_namespace)", meta_description.get_full_namespace())
-    content = content.replace(
-        "$(var tf_prefix)",
-        device_urdf_prefix(meta_description.get_robot_name(), meta_description.get_name()),
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(
+            f"Controllers configuration for '{manufacturer}' arm not found: {file_path}"
+        )
+
+    return file_path
+
+
+def generate_yaml_controllers_configuration_file_str(mode, meta_description):
+    context = {
+        "tf_prefix": f"{meta_description.get_urdf_prefix()}{meta_description.get_name()}_",
+        "control_rate": get_complete_configuration(meta_description)["control_rate"],
+        "ros_namespace": meta_description.get_full_namespace(),
+    }
+
+    return render_template_file(
+        get_template_controllers_configuration_file_path(mode, meta_description), context
     )
-    return content
 
 
 def generate_yaml_launch_file_str(meta_description):

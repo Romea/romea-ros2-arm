@@ -16,6 +16,7 @@
 from ament_index_python.packages import get_package_share_directory
 
 import romea_common_description
+from romea_common_utils import render_template_file, save_temporary_file
 
 import yaml
 
@@ -51,6 +52,11 @@ def get_specification_units():
         return yaml.safe_load(f)
 
 
+def get_xacro_file_path(arm_description):
+    pkg = get_package_share_directory("romea_arm_description")
+    return f"{pkg}/urdf/{arm_description["manufacturer"]}.xacro.urdf"
+
+
 def get_complete_configuration(arm_name, arm_description, arm_location):
 
     model = arm_description["model"]
@@ -73,7 +79,7 @@ def get_complete_configuration(arm_name, arm_description, arm_location):
     return {**configuration, **arm_location}
 
 
-def generate_configuration_file_str(configuration, extended):
+def generate_configuration_file_str(configuration, extended=False):
     units = get_specification_units()
     return romea_common_description.generate_configuration_file(configuration, units, extended)
 
@@ -104,29 +110,31 @@ def generate_urdf_description_str(
         mode += "_gazebo"
 
     configuration = get_complete_configuration(arm_name, arm_description, arm_location)
-    configuration_yaml_file = f"/tmp/{prefix}{arm_name}_configuration.yaml"
-    with open(configuration_yaml_file, "w") as f:
-        f.write(generate_configuration_file_str(configuration, False))
+
+    configuration_yaml_file = save_temporary_file(
+        f"{prefix}{arm_name}_configuration.yaml",
+        generate_configuration_file_str(configuration)
+    )
+
+    additional_urdf_arguments = dict(additional_urdf_arguments or {})
 
     if "gazebo" in mode and additional_urdf_arguments.get("generate_gazebo_tag", "true") == "true":
-        controllers_config_yaml_file = f"/tmp/{prefix}{arm_name}_controllers_configuration.yaml"
-        with open(controllers_config_yaml_file, "w") as f:
-            f.write(
-                generate_controllers_configuration_file_str(
-                    additional_urdf_arguments.pop("controllers_config_yaml_file"),
-                    prefix,
-                    arm_name,
-                    configuration,
-                    ros_namespace,
-                )
-            )
-        additional_urdf_arguments["controllers_config_yaml_file"] = controllers_config_yaml_file
 
-    pkg = get_package_share_directory("romea_arm_description")
-    xacro_file = f"{pkg}/urdf/{configuration["manufacturer"]}.xacro.urdf"
+        controllers_config_file_path = additional_urdf_arguments["controllers_config_yaml_file"]
+
+        context = {
+            "tf_prefix": f"{prefix}{arm_name}_",
+            "control_rate": configuration["control_rate"],
+            "ros_namespace": ros_namespace,
+        }
+
+        additional_urdf_arguments["controllers_config_yaml_file"] = save_temporary_file(
+            f"{prefix}{arm_name}_controllers_configuration.yaml",
+            render_template_file(controllers_config_file_path, context)
+        )
 
     return romea_common_description.generate_urdf_description_str(
-        xacro_file,
+        get_xacro_file_path(arm_description),
         mappings={
             "tf_prefix": prefix,
             "mode": mode,
