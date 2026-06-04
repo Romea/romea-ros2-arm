@@ -59,13 +59,16 @@ launch:
 
 ### Launch files Profiles
 
-The `profile/` directory contains ready-to-use ROS2 launch files like `ur.launch.py`.
 
-They allow:
+The `profile/` directory contains reusable ROS2 launch files dedicated to implement bringup.
 
-* launching arm drivers
-* launching simulator bridges
-* reusing standardized bringup configurations
+These launch profiles provide predefined setups for common execution contexts, such as:
+
+* starting a real IMU driver, for example `ur.launch.py`
+* starting a simulation bridge, for example `to be completed.py`
+* reusing standardized bringup configurations across live and simulation modes
+
+Each profile is intended to be included from the launch section of an implement meta-description. This makes it possible to select the appropriate runtime behavior depending on the selected mode, while keeping the meta-description concise and consistent.
 
 ---
 
@@ -144,6 +147,51 @@ generate-arm-controllers-configuration-file \
     command_interfaces: [position]
     state_interfaces: [position, velocity]
 ```
+
+---
+
+### Generate URDF description
+
+Generates the arm URDF description from the meta-description.
+
+```bash
+generate-arm-urdf-description \
+  mode:=simulation_gazebo \
+  robot_namespace:=robot \
+  meta_description_file_path:=path/to/arm_meta_description.yaml \
+  generate_ros2_control_tag:=true \
+  generate_gazebo_tag:=true
+```
+
+The generated URDF attaches the arm to the parent link defined in the `location` section. It also applies the robot prefix to generated links and joints and can optionally include ros2_control and Gazebo tags.
+
+#### Example output (simplified)
+
+```xml
+<link name="robot_arm_base_link">
+  ...
+</link>
+
+<joint name="robot_arm_joint" type="fixed">
+  <origin xyz="1.0 2.0 3.0"
+          rpy="0.06981317007977318 0.08726646259971647 0.10471975511965977"/>
+  <parent link="robot_base_link"/>
+  <child link="robot_arm_base_link"/>
+</joint>
+
+<ros2_control name="robot_arm" type="system">
+  <hardware>
+    <plugin>...</plugin>
+  </hardware>
+  ...
+</ros2_control>
+
+<gazebo>
+  ...
+</gazebo>
+```
+
+This URDF description can be concatenated with the mobile base and other device URDF descriptions to build a complete robot model.
 
 ---
 

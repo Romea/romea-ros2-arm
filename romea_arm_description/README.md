@@ -51,7 +51,7 @@ arm_location:
 
 ### Notes
 
-Arm specifications are defined in files located in the `config/` directory and follow the pattern `<manufacturer>_<model>.<version>_specifications.yaml` (e.g. `ur_05.e_specifications.yaml`). These specification files provide default values such as control rate and joint configuration, which can be overridden by user-defined values in `arm_description`. As a result, parameters like `control_rate` and `home_joint_positions` are optional.
+Arm specifications are defined in files located in the `config/` directory and follow the pattern `<manufacturer>_<model>_<version>_specifications.yaml` (e.g. `ur_05.e_specifications.yaml`). These specification files provide default values such as control rate and joint configuration, which can be overridden by user-defined values in `arm_description`. As a result, parameters like `control_rate` and `home_joint_positions` are optional.
 
 The `xyz` and `rpy` fields define the pose of the arm relative to the parent link. The `xyz` values specify the translation (in meters), while `rpy` defines the orientation using roll, pitch, and yaw angles expressed in degrees for readability and ease of definition by users. These angles are automatically converted to radians internally by the scripts to comply with ROS and URDF conventions. Together, they describe how the arm is positioned and oriented within the robot frame.
 
@@ -75,7 +75,7 @@ Builds a complete arm configuration by combining:
 
 ### generate_configuration_file_str
 
-Generates the arm configuration file as a YAML string.
+Generates the IMU configuration file as a YAML string from the configuration returned by get_complete_configuration.
 
 ---
 
