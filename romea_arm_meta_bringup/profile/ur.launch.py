@@ -1,32 +1,3 @@
-# Copyright (c) 2021 PickNik, Inc.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in the
-#      documentation and/or other materials provided with the distribution.
-#
-#    * Neither the name of the {copyright_holder} nor the names of its
-#      contributors may be used to endorse or promote products derived from
-#      this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-
-
 # Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# from launch_ros.actions import SetRemap
-# import subprocess
-import contextlib
-import io
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
-from launch.substitutions import LaunchConfiguration  # TextSubstitution
-from launch_ros.actions import Node  # LoadComposableNodes,
-
-# from launch_ros.descriptions import ComposableNode
-
-from romea_arm_meta_bringup.script import generate_xml_urdf_description_str
-
-# from romea_arm_description import generate_urdf_description
+from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterFile
+from launch_ros.substitutions import FindPackageShare
 
 
 class LaunchVariables:
@@ -69,167 +31,127 @@ class LaunchVariables:
 def launch_setup(context, *args, **kwargs):
 
     var = LaunchVariables(context)
-
-    # mode = var.get("mode")
-    # container = var.get("container")
-    # robot_namespace = var.get("robot_namespace")
-
-    # print(context.launch_configurations)
-    buffer = io.StringIO()
-    with contextlib.redirect_stdout(buffer):
-        generate_xml_urdf_description_str(
-            [
-                f"mode:={var.get("mode")}",
-                f"robot_namespace:={var.get("robot_namespace")}",
-                f"meta_description_file_path:={var.get("meta_description_file_path")}",
-            ]
-        )
+    active_controller = var.get("active_controller")
+    go_home_controller = var.get("go_home_controller")
+    controller_manager = var.get("controller_manager")
+    launch_controller_manager = var.get("launch_controller_manager")
 
     launch = LaunchDescription()
 
-    ros2_control_description_node = Node(
-        package="romea_common_meta_bringup",
-        executable="urdf_broadcaster_node",
-        name="ros2_control_description",
-        parameters=[{"robot_description": buffer.getvalue()}],
-    )
+    if launch_controller_manager == "true":
+        controller_manager_parameters = ParameterFile(
+            [
+                FindPackageShare("romea_arm_meta_bringup"),
+                "/config/ur/controller_manager_",
+                var.get("mode"),
+                ".yaml",
+            ],
+            allow_substs=True
+        )
 
-    # joint_state_broadcaster = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     exec_name="joint_state_broadcaster_spawner",
-    #     arguments=[
-    #         "joint_state_broadcaster",
-    #         "--controller-manager",
-    #         controller_manager_name,
-    #     ],
-    #     # output="screen",
-    # )
+        controller_manager_node = Node(
+            package="controller_manager",
+            executable="ros2_control_node",
+            name=controller_manager,
+            parameters=[controller_manager_parameters],
+            output="screen",
+        )
+        launch.add_action(controller_manager_node)
+
+    controller_parameters = ParameterFile(
+        var.get("controller_configurations_file_path"),
+        allow_substs=True
+    )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        # arguments=["joint_state_broadcaster", "--controller-manager", "controller_manager"],
+        parameters=[controller_parameters],
         arguments=[
             "joint_state_broadcaster",
-            "--controller-manager",
-            "/robot/arm/controller_manager",
-        ],
-        # arguments=["joint_state_broadcaster"],
-    )
-
-    # There may be other controllers of the joints, but this is the initially-started one
-    initial_joint_controller_spawner_started = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["forward_position_controller", "-c", "/robot/arm/controller_manager"],
-    )
-    initial_joint_controller_spawner_stopped = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "forward_position_controller",
             "-c",
-            "/robot/arm/controller_manager",
-            "--stopped",
+            controller_manager
         ],
     )
-
-    #   controller_name,
-    #     "--param-file",
-    #     controller_yaml_filename,
-    #     "--controller-manager",
-    #     controller_manager_name,
-    # "--namespace",
-    # "/adap2e/base"
-
-    print(ros2_control_description_node)
-    launch.add_action(ros2_control_description_node)
     launch.add_action(joint_state_broadcaster_spawner)
-    launch.add_action(initial_joint_controller_spawner_stopped)
-    launch.add_action(initial_joint_controller_spawner_started)
 
-    # imu_configuration = {
-    #     "rate": float(var.get("rate")),
-    #     "acceleration_noise_density": float(var.get("acceleration_noise_density")),
-    #     "acceleration_bias_stability_std": float(var.get("acceleration_bias_stability_std")),
-    #     "acceleration_range": float(var.get("acceleration_range")),
-    #     "angular_speed_noise_density": float(var.get("angular_speed_noise_density")),
-    #     "angular_speed_bias_stability_std": float(var.get("angular_speed_bias_stability_std")),
-    #     "angular_speed_range": float(var.get("angular_speed_range")),
-    #     "magnetic_noise_density": float(var.get("magnetic_noise_density")),
-    #     "magnetic_bias_stability_std": float(var.get("magnetic_bias_stability_std")),
-    #     "magnetic_range": float(var.get("magnetic_range")),
-    #     "heading_std": float(var.get("heading_std")),
-    #     "xyz": [float(v) for v in var.get("xyz")[1:-1].split(",")],
-    #     "rpy": [float(v) for v in var.get("rpy")[1:-1].split(",")],
-    # }
+    active_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        parameters=[controller_parameters],
+        arguments=[
+            active_controller,
+            "-c",
+            controller_manager
+        ],
+    )
+    launch.add_action(active_controller_spawner)
 
-    # urdf_description = generate_urdf_description(
-    #     var.get("tf_prefix"),
-    #     mode,
-    #     "arm",
-    #     {
-    #         "model" : var.get("model"),
-    #         "version" : var.get("version"),
-    #         "manufacturer" : var.get("manufacturer"),
-    #         "control_rate" : var.get("control_rate"),
-    #     },
-    #     {
-    #         "parent_link" : var.get("parent_link"),
-    #         "xyz" : var.get("xyz"),
-    #         "rpy" : var.get("rpy"),
-    #     },
-    #     "/robot/arm",
-    #     {
-    #       "standalone": "true",
-    #       "generate_ros2_control_tag": "true",
-    #       "generate_gazebo_tag": "false",
-    #     }
-    # )
+    if active_controller != go_home_controller:
 
-    # common_arguments = {
-    #     "package": "romea_localisation_imu_plugin",
-    #     "name": "localisation_plugin",
-    #     "parameters": [
-    #         {
-    #             "restamping": restamping == "true",
-    #             "enable_accelerations": "simulation" not in mode,
-    #             "imu": imu_configuration,
-    #             "use_sim_time": "live" not in mode
-    #         }
-    #     ],
-    #     "remappings": [
-    #         ("imu/data", "data"),
-    #         ("vehicle_controller/odom", odom_topic),
-    #         ("attitude", f"/{robot_namespace}/localisation/attitude"),
-    #         ("angular_speed", f"/{robot_namespace}/localisation/angular_speed"),
+        go_home_controller_spawner = Node(
+            package="controller_manager",
+            executable="spawner",
+            parameters=[controller_parameters],
+            arguments=[
+                "--inactive",
+                go_home_controller,
+                "-c",
+                controller_manager
+            ],
+        )
 
-    #     ]
-    # }
-
-    # if container == "":
-    #     executable = "imu_localisation_plugin_node"
-    #     launch.add_action(Node(**common_arguments, executable=executable))
-    # else:
-    #     plugin = "romea::ros2::ImuLocalisationPlugin"
-    #     launch.add_action(
-    #         LoadComposableNodes(
-    #             target_container=container,
-    #             composable_node_descriptions=[
-    #                 ComposableNode(**common_arguments, plugin=plugin)
-    #             ],
-    #         )
-    #     )
+        launch.add_action(go_home_controller_spawner)
 
     return [launch]
 
 
 def generate_launch_description():
 
+    mode = LaunchConfiguration("mode")
+    default_trajectory_controller = PythonExpression(
+        [
+            "'joint_trajectory_controller' if 'simulation' in '",
+            mode,
+            "' else 'scaled_joint_trajectory_controller'",
+        ]
+    )
+    default_launch_controller_manager = PythonExpression(
+        [
+            "'false' if '",
+            mode,
+            "' in ['simulation_gazebo', 'simulation_gazebo_classic'] else 'true'",
+        ]
+    )
+    default_controller_configurations_file_path = [
+        FindPackageShare("romea_arm_meta_bringup"),
+        "/config/ur/controller_configurations_",
+        mode,
+        ".yaml",
+
+    ]
     return LaunchDescription(
         [
-            DeclareLaunchArgument("container", default_value=""),
+            DeclareLaunchArgument(
+                "controller_manager",
+                default_value="controller_manager"
+            ),
+            DeclareLaunchArgument(
+                "launch_controller_manager",
+                default_value=default_launch_controller_manager,
+            ),
+            DeclareLaunchArgument(
+                "controller_configurations_file_path",
+                default_value=default_controller_configurations_file_path
+            ),
+            DeclareLaunchArgument(
+                "active_controller",
+                default_value=default_trajectory_controller
+            ),
+            DeclareLaunchArgument(
+                "go_home_controller",
+                default_value=default_trajectory_controller
+            ),
             OpaqueFunction(function=launch_setup),
         ]
     )

@@ -24,15 +24,15 @@ def get_meta_description(context):
     return load_meta_description(meta_description_file_path, robot_namespace)
 
 
-def declare_controllers_configuration_file_path(device_name, default_value=None):
+def declare_controller_configurations_file_path(device_name, default_value=None):
     return common.declare_argument(
         {
             "name": "controllers_configuration_file_path",
-            "description": f"{device_name} controllers configuration filename",
+            "description": f"{device_name} controller configurations filename",
         },
         default_value,
     )
 
 
-def get_controllers_configuration_file_path(context):
-    return LaunchConfiguration("controllers_configuration_file_path").perform(context)
+def get_controller_configurations_file_path(context):
+    return LaunchConfiguration("controller_configurations_file_path").perform(context)

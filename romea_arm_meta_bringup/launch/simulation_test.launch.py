@@ -36,7 +36,7 @@ def launch_setup(context, *args, **kwargs):
             get_package_share_directory("romea_simulation_meta_bringup")
             + "/launch/simulator.launch.py"
         ),
-        launch_arguments={'simulator_type': simulator_type}.items(),
+        launch_arguments={"simulator_type": simulator_type}.items(),
     )
 
     launch.add_action(simulator)
@@ -47,10 +47,10 @@ def launch_setup(context, *args, **kwargs):
             + "/launch/entity.launch.py"
         ),
         launch_arguments={
-            'simulator_type': simulator_type,
-            'entity_type': "arm",
-            'robot_namespace': robot_namespace,
-            'meta_description_file_path': meta_description_file_path,
+            "simulator_type": simulator_type,
+            "entity_type": "arm",
+            "robot_namespace": robot_namespace,
+            "meta_description_file_path": meta_description_file_path,
         }.items(),
     )
 
@@ -58,13 +58,12 @@ def launch_setup(context, *args, **kwargs):
 
     nodes = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_package_share_directory("romea_arm_meta_bringup")
-            + "/launch/arm.launch.py"
+            get_package_share_directory("romea_arm_meta_bringup") + "/launch/arm.launch.py"
         ),
         launch_arguments={
-            'robot_namespace': robot_namespace,
-            'mode': f"simulation_{simulator_type}",
-            'meta_description_file_path': meta_description_file_path,
+            "robot_namespace": robot_namespace,
+            "mode": f"simulation_{simulator_type}",
+            "meta_description_file_path": meta_description_file_path,
         }.items(),
     )
 
@@ -77,9 +76,9 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-           common.declare_robot_namespace("robot"),
-           simulation.declare_simulator_type("gazebo"),
-           common.declare_meta_description_file_path("arm"),
-           OpaqueFunction(function=launch_setup)
+            common.declare_robot_namespace("robot"),
+            simulation.declare_simulator_type("gazebo"),
+            common.declare_meta_description_file_path("arm"),
+            OpaqueFunction(function=launch_setup),
         ]
     )

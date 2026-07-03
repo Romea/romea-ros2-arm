@@ -18,7 +18,9 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 
-from romea_arm_meta_bringup.meta_description import generate_yaml_launch_file_str
+from romea_arm_meta_bringup.meta_description import (
+    generate_yaml_launch_file_str,
+)
 import romea_arm_meta_bringup.ros_launch as arm
 import romea_common_meta_bringup.ros_launch as common
 
@@ -26,7 +28,7 @@ import romea_common_meta_bringup.ros_launch as common
 def launch_setup(context, *args, **kwargs):
     mode = common.get_mode(context)
     meta_description = arm.get_meta_description(context)
-    # controllers_configuration_filename = arm.get_controllers_configuration_file_path
+
     launch_filename = f"/tmp/{meta_description.get_filename_prefix()}drivers.launch.yaml"
     with open(launch_filename, "w") as f:
         f.write(generate_yaml_launch_file_str(meta_description))
@@ -36,7 +38,6 @@ def launch_setup(context, *args, **kwargs):
             AnyLaunchDescriptionSource(launch_filename),
             launch_arguments={
                 "mode": mode,
-                # "controllers_configuration_file_path": controllers_configuration_filenmae,
             }.items(),
         )
     ]
@@ -49,7 +50,6 @@ def generate_launch_description():
             common.declare_mode("live"),
             common.declare_robot_namespace(""),
             common.declare_meta_description_file_path("arm"),
-            # arm.declare_controllers_configuration_file_path(arm,""),
-            OpaqueFunction(function=launch_setup)
+            OpaqueFunction(function=launch_setup),
         ]
     )

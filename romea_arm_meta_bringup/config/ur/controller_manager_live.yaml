@@ -1,0 +1,62 @@
+$(var ros_namespace)/controller_manager:
+  ros__parameters:
+    update: $(var control_rate)
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    io_and_status_controller:
+      type: ur_controllers/GPIOController
+
+    speed_scaling_state_broadcaster:
+      type: ur_controllers/SpeedScalingStateBroadcaster
+
+    force_torque_sensor_broadcaster:
+      type: force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster
+
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    scaled_joint_trajectory_controller:
+      type: ur_controllers/ScaledJointTrajectoryController
+
+    forward_velocity_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    forward_effort_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    forward_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    force_mode_controller:
+      type: ur_controllers/ForceModeController
+
+    friction_model_controller:
+      type: ur_controllers/FrictionModelController
+
+    freedrive_mode_controller:
+      type: ur_controllers/FreedriveModeController
+
+    passthrough_trajectory_controller:
+      type: ur_controllers/PassthroughTrajectoryController
+
+    tcp_pose_broadcaster:
+      type: pose_broadcaster/PoseBroadcaster
+
+    ur_configuration_controller:
+      type: ur_controllers/URConfigurationController
+
+    tool_contact_controller:
+      type: ur_controllers/ToolContactController
+
+    # The way this is currently implemented upstream doesn't really work for us. When using
+    # position control, the robot will have a tracking error. However, limits will be enforced
+    # from the currently reported position, effectively limiting the possible step size using the
+    # joints' velocity limits. Until this is resolved, we will keep command limits non-enforced.
+    # Note: On Jazzy this is the default behavior, anyway. For Rolling / Kilted this defaults to
+    # true.
+    enforce_command_limits: false
+
+    motion_primitive_forward_controller:
+      type: motion_primitives_controllers/MotionPrimitivesForwardController

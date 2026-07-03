@@ -19,6 +19,8 @@ ament_python_install_package(romea_arm_meta_bringup)
 install(PROGRAMS
   scripts/generate_configuration_file.py
   scripts/generate_controllers_configuration_file.py
+  scripts/generate_controller_manager_configuration_file.py
+  scripts/generate_controller_configurations_file.py
   scripts/generate_launch_file.py
   scripts/generate_urdf_description.py
   DESTINATION lib/${PROJECT_NAME}
@@ -35,6 +37,19 @@ install(PROGRAMS
   DESTINATION bin
   RENAME generate-arm-controllers-configuration-file
 )
+
+install(PROGRAMS
+  scripts/generate_controller_manager_configuration_file.py
+  DESTINATION bin
+  RENAME generate-arm-controller-manager-configuration-file
+)
+
+install(PROGRAMS
+  scripts/generate_controller_configurations_file.py
+  DESTINATION bin
+  RENAME generate-arm-controller-configuration-file
+)
+
 
 install(PROGRAMS
   scripts/generate_launch_file.py

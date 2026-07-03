@@ -5,26 +5,20 @@ import sys
 
 from romea_arm_meta_bringup.meta_description import ArmMetaDescription
 from romea_arm_meta_bringup.meta_description import (
-    generate_xml_urdf_description_str,
+    generate_yaml_controller_configurations_file_str,
 )
 from romea_common_meta_bringup.script_parameters import (
-    robot_urdf_description_generation_parameters_from_cli,
-    urdf_generation_options,
+    controllers_configuration_file_generation_parameters_from_cli,
 )
 
 
 def main():
-
-    parameters = robot_urdf_description_generation_parameters_from_cli("arm")
+    parameters = controllers_configuration_file_generation_parameters_from_cli("arm")
     mode = parameters.pop_str("mode", required=True)
     robot_namespace = parameters.pop_str("robot_namespace", required=True)
     meta_description_file_path = parameters.pop_str("meta_description_file_path", required=True)
     meta_description = ArmMetaDescription(meta_description_file_path, robot_namespace)
-
-    additional_arguments = urdf_generation_options(parameters, mode, ros2_control=True)
-    additional_arguments.update(parameters.remaining())
-
-    print(generate_xml_urdf_description_str(mode, meta_description, additional_arguments))
+    print(generate_yaml_controller_configurations_file_str(mode, meta_description))
     return 0
 
 
