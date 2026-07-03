@@ -9,7 +9,7 @@ from romea_arm_meta_bringup.meta_description import (
 )
 from romea_common_meta_bringup.script_parameters import (
     robot_urdf_description_generation_parameters_from_cli,
-    urdf_generation_options,
+    # urdf_generation_options,
 )
 
 
@@ -21,7 +21,17 @@ def main():
     meta_description_file_path = parameters.pop_str("meta_description_file_path", required=True)
     meta_description = ArmMetaDescription(meta_description_file_path, robot_namespace)
 
-    additional_arguments = urdf_generation_options(parameters, mode, ros2_control=True)
+    additional_arguments = {
+        "standalone": parameters.pop_bool("standalone"),
+        "ros_distro": parameters.pop_str("ros_distro"),
+        "generate_gazebo_tag": (
+            parameters.pop_bool("generate_gazebo_tag")
+            if mode == "simulation" or "gazebo" in mode
+            else "false"
+        ),
+    }
+
+    # additional_arguments = urdf_generation_options(parameters, mode, ros2_control=True)
     additional_arguments.update(parameters.remaining())
 
     print(generate_xml_urdf_description_str(mode, meta_description, additional_arguments))
