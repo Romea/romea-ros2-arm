@@ -37,7 +37,7 @@ def urdf():
             [
                 exe,
                 "robot_namespace:=robot",
-                "mode:=simulation",
+                "mode:=simulation_gazebo",
                 "meta_description_file_path:=" + meta_description_file_path,
             ],
             encoding="utf-8",
