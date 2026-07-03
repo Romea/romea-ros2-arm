@@ -14,6 +14,7 @@
 
   <depend>ament_index_python</depend>
   <depend>xacro</depend>
+  <depend>romea_common_description</depend>
   <depend>ur_description</depend>
   <depend>ur_robot_driver</depend>
 
