@@ -19,7 +19,8 @@ if(BUILD_TESTING)
 
   find_package(ament_cmake_pytest REQUIRED)
 #   # configure_file(test/controller_manager.yaml  test/controller_manager.yaml)
-  ament_add_pytest_test(test_ur_arm_description test/test_ur_arm_description.py)
+  ament_add_pytest_test(test_ur_arm_description test/ur/test_ur_arm_description.py)
+  ament_add_pytest_test(test_ur_arm_urdf test/ur/test_ur_arm_urdf.py)
 endif()
 
 ament_package()
