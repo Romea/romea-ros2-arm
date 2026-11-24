@@ -21,6 +21,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 class LaunchVariables:
+
     def __init__(self, context):
         self.__context = context
 

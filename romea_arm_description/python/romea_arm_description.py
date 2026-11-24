@@ -54,7 +54,7 @@ def get_specification_units():
 
 def get_xacro_file_path(arm_description):
     pkg = get_package_share_directory("romea_arm_description")
-    return f"{pkg}/urdf/{arm_description["manufacturer"]}.xacro.urdf"
+    return f"{pkg}/urdf/{arm_description['manufacturer']}.xacro.urdf"
 
 
 def get_complete_configuration(arm_name, arm_description, arm_location):

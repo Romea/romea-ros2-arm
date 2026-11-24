@@ -24,6 +24,7 @@ from romea_common_utils import render_template_file
 
 
 class ArmMetaDescription(SensorMetaDescription):
+
     def __init__(self, meta_description_file_path, robot_name=None):
         self.__file_path = meta_description_file_path
         super().__init__("arm", meta_description_file_path, robot_name)
