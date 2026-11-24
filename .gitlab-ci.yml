@@ -3,4 +3,7 @@ include:
     file: ".gitlab-ci.yml"
 
 variables:
+  ROS_HUMBLE_IMAGE: "osrf/ros:humble-desktop-full-jammy"
+  ROS_JAZZY_IMAGE: "osrf/ros:jazzy-desktop-full-noble"
+  ROS_LYRICAL_IMAGE": "ros:lyrical-ros-base-resolute"
   PKGS_TO_BUILD_TEST: "romea_arm_meta_bringup romea_arm_description"
