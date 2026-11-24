@@ -14,6 +14,15 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(FILES config/ur/controller_manager_simulation_gazebo.yaml
+  DESTINATION share/${PROJECT_NAME}/config/ur
+  RENAME controller_manager_simulation_gazebo_classic.yaml
+)
+install(FILES config/ur/controller_configurations_simulation_gazebo.yaml
+  DESTINATION share/${PROJECT_NAME}/config/ur
+  RENAME controller_configurations_simulation_gazebo_classic.yaml
+)
+
 ament_python_install_package(romea_arm_meta_bringup)
 
 install(PROGRAMS
@@ -68,6 +77,10 @@ if(BUILD_TESTING)
   set(ament_cmake_flake8_CONFIG_FILE "${CMAKE_SOURCE_DIR}/../.flake8")
   list(APPEND AMENT_LINT_AUTO_EXCLUDE ament_cmake_copyright)
   ament_lint_auto_find_test_dependencies()
+
+  find_package(launch_testing_ament_cmake REQUIRED)
+  add_launch_test(test/test_arm_gazebo_simulation.launch.py TIMEOUT 180)
+  set_tests_properties(test_test_arm_gazebo_simulation.launch.py PROPERTIES RUN_SERIAL TRUE)
 
   find_package(ament_cmake_pytest REQUIRED)
   configure_file(test/test_arm_meta_bringup.yaml test_arm_meta_bringup.yaml)

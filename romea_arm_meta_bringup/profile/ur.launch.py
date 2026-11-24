@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration, PythonExpression
@@ -64,6 +66,11 @@ def launch_setup(context, *args, **kwargs):
         allow_substs=True
     )
 
+    spawner_arguments = []
+    if os.environ.get("ROS_DISTRO") == "humble":
+        # Humble does not forward the spawner's ROS parameter files to controllers.
+        spawner_arguments = ["--param-file", controller_parameters.evaluate(context)]
+
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -71,8 +78,8 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             "joint_state_broadcaster",
             "-c",
-            controller_manager
-        ],
+            controller_manager,
+        ] + spawner_arguments,
     )
     launch.add_action(joint_state_broadcaster_spawner)
 
@@ -83,8 +90,8 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             active_controller,
             "-c",
-            controller_manager
-        ],
+            controller_manager,
+        ] + spawner_arguments,
     )
     launch.add_action(active_controller_spawner)
 
@@ -98,8 +105,8 @@ def launch_setup(context, *args, **kwargs):
                 "--inactive",
                 go_home_controller,
                 "-c",
-                controller_manager
-            ],
+                controller_manager,
+            ] + spawner_arguments,
         )
 
         launch.add_action(go_home_controller_spawner)

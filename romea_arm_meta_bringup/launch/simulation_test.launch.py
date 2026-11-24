@@ -16,8 +16,9 @@
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 
 import romea_common_meta_bringup.ros_launch as common
 import romea_simulation_meta_bringup.ros_launch as simulation
@@ -36,7 +37,10 @@ def launch_setup(context, *args, **kwargs):
             get_package_share_directory("romea_simulation_meta_bringup")
             + "/launch/simulator.launch.py"
         ),
-        launch_arguments={"simulator_type": simulator_type}.items(),
+        launch_arguments={
+            "simulator_type": simulator_type,
+            "gui": LaunchConfiguration("gui"),
+        }.items(),
     )
 
     launch.add_action(simulator)
@@ -78,6 +82,7 @@ def generate_launch_description():
         [
             common.declare_robot_namespace("robot"),
             simulation.declare_simulator_type("gazebo"),
+            DeclareLaunchArgument("gui", default_value="true"),
             common.declare_meta_description_file_path("arm"),
             OpaqueFunction(function=launch_setup),
         ]
